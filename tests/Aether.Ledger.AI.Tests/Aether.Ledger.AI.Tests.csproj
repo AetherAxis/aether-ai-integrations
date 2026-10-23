@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Aether.Ledger.AI\Aether.Ledger.AI.csproj" />
+    <!-- 测试直接用链类型（LedgerWallet/LedgerTransaction/Loopback 夹具）——显式引用不依赖传递 -->
+    <ProjectReference Include="..\..\..\aether-ledger\src\Aether.Ledger\Aether.Ledger.csproj" />
+  </ItemGroup>
+
+</Project>

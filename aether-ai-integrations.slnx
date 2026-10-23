@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/Aether.Ledger.AI/Aether.Ledger.AI.csproj" />
+  <Project Path="tests/Aether.Ledger.AI.Tests/Aether.Ledger.AI.Tests.csproj" />
+</Solution>
