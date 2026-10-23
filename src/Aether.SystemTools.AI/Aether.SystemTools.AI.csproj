@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <!-- 跨仓 ProjectReference（兄弟仓并排于 AetherAxis 根下，同 Aether.Ledger.AI 惯例——三级上溯）：
+         ⑫ aether-ai 平台层（AetherAIBuilder / ToolRegistry / 审批与宿主能力）。 -->
+    <ProjectReference Include="..\..\..\aether-ai\src\Aether.AI.Hosting\Aether.AI.Hosting.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- WebFetchTool 经 IHttpClientFactory 取客户端（连接池与重定向策略由宿主统一配置）。 -->
+    <PackageReference Include="Microsoft.Extensions.Http" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

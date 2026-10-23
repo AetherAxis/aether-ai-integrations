@@ -1,4 +1,7 @@
 <Solution>
   <Project Path="src/Aether.Ledger.AI/Aether.Ledger.AI.csproj" />
+  <Project Path="src/Aether.SystemTools.AI/Aether.SystemTools.AI.csproj" />
   <Project Path="tests/Aether.Ledger.AI.Tests/Aether.Ledger.AI.Tests.csproj" />
+  <Project Path="tests/Aether.SystemTools.AI.Tests/Aether.SystemTools.AI.Tests.csproj" />
+  <Project Path="tests/Consumers/Aether.SystemTools.AI.Consumer/Aether.SystemTools.AI.Consumer.csproj" />
 </Solution>

@@ -1,13 +1,18 @@
 <Project>
 
   <!-- aether-ai-integrations 独立 CPM。版本基线 = monorepo Directory.Packages.props @ 8686503
-       （2026-10-23 迁入，不借迁移自动升级）。适配器本体零包引用（MAF/NSec 经 ProjectReference 传递）。 -->
+       （2026-10-23 迁入，不借迁移自动升级）。Ledger 适配器零包引用（MAF/NSec 经 ProjectReference 传递）；
+       SystemTools 适配器只多一个 Microsoft.Extensions.Http（WebFetchTool 走 IHttpClientFactory）。 -->
 
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- SystemTools 适配器（WebFetchTool 的 IHttpClientFactory）与测试的 DI 组合 -->
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.11" />
+
     <!-- 测试 -->
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
