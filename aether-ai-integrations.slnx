@@ -3,5 +3,5 @@
   <Project Path="src/Aether.SystemTools.AI/Aether.SystemTools.AI.csproj" />
   <Project Path="tests/Aether.Ledger.AI.Tests/Aether.Ledger.AI.Tests.csproj" />
   <Project Path="tests/Aether.SystemTools.AI.Tests/Aether.SystemTools.AI.Tests.csproj" />
-  <Project Path="tests/Consumers/Aether.SystemTools.AI.Consumer/Aether.SystemTools.AI.Consumer.csproj" />
+  <Project Path="samples/Aether.SystemTools.AI.Sample/Aether.SystemTools.AI.Sample.csproj" />
 </Solution>

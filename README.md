@@ -15,7 +15,7 @@ aether-ai 是纯平台层（大脑接缝 + Harness + 工具池契约），**不�
 
 测试（`tests/Aether.SystemTools.AI.Tests`，7 例）：DI 元数据与审批等级、命令工具开关、真实文件系统写/读/编辑/Grep/Glob/目录浏览/删除、`Grep`/`Glob` 空 `path` 拒绝回退 CWD、`ToolRegistry` 解析出的 `AIFunction` 按参数名绑定调用（MAF 调工具的已知陷阱）、**规则大脑经 Harness 调 `ReadFile` 的完整闭环**。
 
-消费冒烟（`tests/Consumers/Aether.SystemTools.AI.Consumer`）：规则大脑实跑 `ReadFile` / `ExploreDirectory` 并断言输出，CI 直接运行。
+示例宿主（`samples/Aether.SystemTools.AI.Sample`）：规则大脑实跑 `ReadFile` / `ExploreDirectory` 并打印结果，`dotnet run` 即可；断言在 `tests/Aether.SystemTools.AI.Tests` 中，CI 两者都跑。
 
 ### 系统工具审批与宿主能力
 
@@ -59,7 +59,7 @@ CI 按拓扑 checkout 兄弟仓（aether-ai + aether-ledger，同 aether-desktop
 
 ```bash
 dotnet test aether-ai-integrations.slnx    # 13 例：真链回环 ×5 + Ledger 接线钉子 ×1 + 系统工具 ×7
-dotnet run --project tests/Consumers/Aether.SystemTools.AI.Consumer   # 规则大脑调真实系统工具
+dotnet run --project samples/Aether.SystemTools.AI.Sample   # 示例：规则大脑调真实系统工具
 ```
 
 ## 来历

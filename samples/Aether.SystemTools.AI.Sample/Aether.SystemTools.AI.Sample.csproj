@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- consumer 位于 tests/Consumers/<name>：四级上溯到 AetherAxis 根，再进兄弟仓 aether-ai。 -->
-    <ProjectReference Include="..\..\..\src\Aether.SystemTools.AI\Aether.SystemTools.AI.csproj" />
-    <ProjectReference Include="..\..\..\..\aether-ai\src\Aether.AI.Brains.Rule\Aether.AI.Brains.Rule.csproj" />
-    <ProjectReference Include="..\..\..\..\aether-ai\src\Aether.AI.Hosting\Aether.AI.Hosting.csproj" />
+    <!-- sample 位于 samples/<name>：两级上溯到本仓根；再三级出去到兄弟仓 aether-ai。 -->
+    <ProjectReference Include="..\..\src\Aether.SystemTools.AI\Aether.SystemTools.AI.csproj" />
+    <ProjectReference Include="..\..\..\aether-ai\src\Aether.AI.Brains.Rule\Aether.AI.Brains.Rule.csproj" />
+    <ProjectReference Include="..\..\..\aether-ai\src\Aether.AI.Hosting\Aether.AI.Hosting.csproj" />
   </ItemGroup>
 </Project>

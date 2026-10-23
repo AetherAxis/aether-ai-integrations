@@ -55,7 +55,8 @@ jobs:
         run: dotnet test aether-ai-integrations.slnx -c Release --no-build
         working-directory: aether-ai-integrations
 
-      # 适配器消费者冒烟：规则大脑经 Harness 调用真实系统工具（ReadFile / ExploreDirectory）。
-      - name: Run dependency consumers
-        run: dotnet run --project tests/Consumers/Aether.SystemTools.AI.Consumer -c Release --no-build
+      # 示例冒烟：规则大脑经 Harness 调用真实系统工具（ReadFile / ExploreDirectory）。
+      # 断言本身在 tests/Aether.SystemTools.AI.Tests；这里只验证公开入口在干净宿主里能跑起来。
+      - name: Run sample host
+        run: dotnet run --project samples/Aether.SystemTools.AI.Sample -c Release --no-build
         working-directory: aether-ai-integrations

@@ -5,7 +5,11 @@ using Aether.AI.Hosting;
 using Aether.SystemTools.AI;
 using Microsoft.Extensions.DependencyInjection;
 
-// 用法：dotnet run --project tests/Consumers/Aether.SystemTools.AI.Consumer [目录]
+// SystemTools 示例：规则大脑真正调用系统工具（ReadFile / ExploreDirectory），
+// 走 MAF 的「调用 → 执行 → 回填 → 终答」循环。断言在 tests/Aether.SystemTools.AI.Tests 里，
+// 这里只演示接线与输出。
+//
+// 用法：dotnet run --project samples/Aether.SystemTools.AI.Sample [目录]
 // 不给目录时自建临时目录 + 示例文件，保证可重复运行。
 var target = args.Length > 0 ? Path.GetFullPath(args[0]) : CreateFixture();
 try
@@ -16,18 +20,15 @@ try
     using var provider = services.BuildServiceProvider();
     var agents = provider.GetRequiredService<AgentFactory>();
 
-    // 大脑真正调用系统工具：ReadFile / ExploreDirectory，走 MAF 的调用-回填循环。
-    await RunAsync(agents, "read", "system-tools-read", "ReadFile",
+    var content = await RunAsync(agents, "system-tools-read", "ReadFile",
         new Dictionary<string, object?> { ["filePath"] = "{user.1}" },
-        @"^读取 (.+)$", $"读取 {Path.Combine(target, "demo.txt")}",
-        expected: "system-tools-demo");
+        @"^读取 (.+)$", $"读取 {Path.Combine(target, "demo.txt")}");
+    Console.WriteLine($"ReadFile  → {content.Trim()}");
 
-    await RunAsync(agents, "list", "system-tools-list", "ExploreDirectory",
+    var listing = await RunAsync(agents, "system-tools-list", "ExploreDirectory",
         new Dictionary<string, object?> { ["path"] = "{user.1}" },
-        @"^列出 (.+)$", $"列出 {target}",
-        expected: "demo.txt");
-
-    Console.WriteLine("SystemTools:PASS");
+        @"^列出 (.+)$", $"列出 {target}");
+    Console.WriteLine($"ExploreDirectory → {listing.Trim()}");
 }
 finally
 {
@@ -37,20 +38,13 @@ finally
     }
 }
 
-static async Task RunAsync(
-    AgentFactory agents,
-    string id,
-    string name,
-    string tool,
-    Dictionary<string, object?> args,
-    string userPattern,
-    string input,
-    string expected)
+static async Task<string> RunAsync(
+    AgentFactory agents, string id, string tool, Dictionary<string, object?> args, string userPattern, string input)
 {
     var definition = new AgentDefinition
     {
         Id = id,
-        Name = name,
+        Name = id,
         Engine = EngineKind.Rule,
         Tools = new[] { tool },
         Memory = AgentMemoryMode.Off,
@@ -76,21 +70,14 @@ static async Task RunAsync(
     var session = await agent.CreateSessionAsync();
     var output = string.Empty;
     await foreach (var update in agent.RunStreamingAsync(input, session))
-    {
         output += update.Text;
-    }
 
-    if (!output.Contains(expected, StringComparison.Ordinal))
-    {
-        throw new InvalidOperationException($"{tool}: expected '{expected}' in output, got '{output}'");
-    }
-
-    Console.WriteLine($"{tool}:PASS");
+    return output;
 }
 
 static string CreateFixture()
 {
-    var dir = Path.Combine(Path.GetTempPath(), "aether-systemtools-consumer-" + Guid.NewGuid().ToString("N"));
+    var dir = Path.Combine(Path.GetTempPath(), "aether-systemtools-sample-" + Guid.NewGuid().ToString("N"));
     Directory.CreateDirectory(dir);
     File.WriteAllText(Path.Combine(dir, "demo.txt"), "system-tools-demo\n");
     return dir;
