@@ -36,7 +36,9 @@ internal sealed class LedgerNodeLoopback : IDisposable
         var port = node.LocalEndpoint?.Port ?? throw new InvalidOperationException("节点未绑定端口");
         // 种子（生成的种子打印在日志里——测试从那里回收）
         var log = await File.ReadAllTextAsync(logFile);
-        var treasurySeed = ExtractSeed(log, "treasury");
+        // 种子必须回收成功，否则后面所有签名断言都会以「空种子」这种难以定位的方式失败。
+        var treasurySeed = ExtractSeed(log, "treasury")
+            ?? throw new InvalidOperationException($"节点日志中未找到 treasury 种子：{logFile}");
         var producerSeed = ExtractSeed(log, "producer");
         return new LedgerNodeLoopback(node, new LedgerClient("127.0.0.1", port), chainFile, producerSeed)
         {

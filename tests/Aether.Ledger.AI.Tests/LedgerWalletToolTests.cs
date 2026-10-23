@@ -77,6 +77,7 @@ public class LedgerWalletToolTests
             var payee = LedgerHarness.Wallet("tool-payee");
             var r = await tool.LedgerTransfer(payee.Address.Hex, "1.5", "货款");
             Assert.True(r.Success, r.Error);
+            Assert.NotNull(r.TxHash);
             Assert.NotEmpty(r.TxHash);
             Assert.Equal("1.50000000", r.Amount);
 
