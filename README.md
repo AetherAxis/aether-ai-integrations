@@ -28,6 +28,12 @@ aether-ai 是纯平台层（大脑接缝 + Harness + 工具池契约），**不�
 
 `Grep` / `Glob` 要求显式 `path`（空路径直接报错，不回退进程 CWD——桌面 app 从 `.app` 启动时 CWD 是 `/`），并拒绝把系统根目录当搜索根。
 
+**命令工具的上游替代（暂不可用）**：MAF 主仓里有 `Microsoft.Agents.AI.Tools.Shell`——`LocalShellExecutor`
+（`ShellPolicy` deny/allow 正则 + 超时 + 输出上限）与 `DockerShellExecutor`（network=none、只读根、
+pids/内存限制）。2026-10-24 核对：该包**未发布到 nuget.org**（`dotnet package search --exact-match` 无结果），
+所以这里仍是手写实现（已有超时、进程树清理、stdout/stderr 重定向与 stdin 关闭）。上游一旦发布，
+应把 `CommandExecutorTool` / `ShellCommandTool` 换成 `ShellExecutor`，工具名与审批等级保持不变。
+
 ## 跨仓依赖（工作区 ProjectReference，兄弟仓并排于 AetherAxis 根下）
 
 ```
