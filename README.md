@@ -8,10 +8,14 @@ aether-ai 是纯平台层（大脑接缝 + Harness + 工具池契约），**不�
 
 | 项目 | 说明 |
 |---|---|
-| `src/Aether.SystemTools.AI` | 宿主能力工具 15 个：文件（`ReadFile` `WriteFile` `EditFile` `LineEditFile` `DeleteFile` `MoveFile` `DiffFile` `ApplyPatch` `ApplyPatchWithDelete`）、搜索（`Grep` `Glob` `ExploreDirectory`）、网络（`FetchUrl`）、命令（`ExecuteCommand` `ExecuteShellCommand`）。`AddSystemTools(builder)` / `AddSystemTools(builder, includeCommandTools: false)`（可移植 13 个） |
+| `src/Aether.SystemTools.AI` | 宿主能力工具 16 个：文件（`ReadFile` `WriteFile` `EditFile` `LineEditFile` `DeleteFile` `MoveFile` `DiffFile` `ApplyPatch` `ApplyPatchWithDelete`）、搜索（`Grep` `Glob` `ExploreDirectory`）、网络（`FetchUrl`、**`WebSearch`**——Bing HTML 抓取，失败退 DuckDuckGo，纯 HTTP 无浏览器）、命令（`ExecuteCommand` `ExecuteShellCommand`）。`AddSystemTools(builder)` / `AddSystemTools(builder, includeCommandTools: false)`（可移植 14 个） |
 | `src/Aether.Ledger.AI` | 链上钱包工具（**AI agent 经济的操作面**，⑮ 手机/桌面共享接线）：`LedgerGetInfo` / `LedgerGetBalance`（Safe）/ `LedgerTransfer`（**Dangerous**——链上转账不可逆）/ `LedgerDepositToExchange`（Confirm——充值到交易所 custody，桥自动补铸场内现金）。`AddLedgerTools(builder, walletSeedFilePath, nodeAddress, custodyAddress)` 经 aether-ai 的 `ConfigureToolRegistry` 注册；地址解析优先级 **参数（宿主配置）&gt; env（`AETHER_LEDGER_NODE_ADDR` / `AETHER_LEDGER_CUSTODY_ADDRESS`）&gt; 默认 `127.0.0.1:17805`**——手机端设不了 env，必须由宿主传进来；种子文件每次调用现读（换文件免重启，首个签名操作自动生成并 `0600` 落盘） |
 
+| `src/Aether.AppAudit.AI` | **应用审查任务板 + 工具**（`ListAuditTasks` / `SaveAppVerdict` / `ReadAppVerdict`，全 Safe）。模块自带数据模型、`app-audit.json` 落盘、发布/取任务/写结论的状态机，以及判定口径 skill（`app-audit/SKILL.md`，首次运行种进宿主 skills 目录，改口径只改 Markdown）。`AddAppAuditTools(builder, dataDirectory, skillsDirectory)`。**关键设计：模块里没有判定逻辑**——页面/宿主只发布任务，怎么判（搜几次、抓不抓正文、要不要多轮）由 agent 自己决定，工具只负责把结论写回；所以任何宿主复用这个模块就有一套自己的应用审查，不依赖任何 UI 仓 |
+
 测试（`tests/Aether.Ledger.AI.Tests`，17 例）：5 例**真链回环**随迁自 monorepo（进程内 LedgerNode + 签名转账/充值路径 + 种子文件生命周期——跨仓直连 ① aether-ledger 引擎）+ 1 例 DI 接线钉子（`AddLedgerTools` → ToolRegistry 四工具与审批等级）+ **9 例节点/托管地址配置**（优先级 参数&gt;env&gt;默认、`host:port`/URL/路径/IPv6 写法宽容、种子文件 `0600`）+ 1 例充值未配 custody 的指引文案。
+
+测试（`tests/Aether.AppAudit.AI.Tests`，31 例）：任务板状态机（导入=待发布、发布默认跳过已判过、勾复核才重发、取任务→写回→出池、单条重发只影响那一条、旧版中途阶段算待处理、按发布顺序 + `limit` 截断）、写入纪律（重复导入不覆盖结论、落盘读回、坏 JSON 当空表、重判保留历史且当前取最近一次）、工具链路（取任务带清单网址与上次结论、未导入的名字也能写、非法 verdict 拒绝、同义词/中文、无任务明说）、skill（落盘去 frontmatter、不改用户正文、旧默认值升级、文件缺失回退内置）。
 
 测试（`tests/Aether.SystemTools.AI.Tests`，7 例）：DI 元数据与审批等级、命令工具开关、真实文件系统写/读/编辑/Grep/Glob/目录浏览/删除、`Grep`/`Glob` 空 `path` 拒绝回退 CWD、`ToolRegistry` 解析出的 `AIFunction` 按参数名绑定调用（MAF 调工具的已知陷阱）、**规则大脑经 Harness 调 `ReadFile` 的完整闭环**。
 
@@ -43,6 +47,9 @@ aether-ai-integrations/src/Aether.Ledger.AI
 
 aether-ai-integrations/src/Aether.SystemTools.AI
   → ../../aether-ai/src/Aether.AI.Hosting      （同上；工具池、审批、宿主过滤全在平台层）
+
+aether-ai-integrations/src/Aether.AppAudit.AI
+  → ../../aether-ai/src/Aether.AI.Hosting      （同上；本模块**不引任何 UI/应用仓**，可被任意宿主复用）
 ```
 
 CI 按拓扑 checkout 兄弟仓（aether-ai + aether-ledger，同 aether-desktop 模式）。

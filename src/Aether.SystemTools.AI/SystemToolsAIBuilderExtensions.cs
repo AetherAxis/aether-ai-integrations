@@ -19,6 +19,7 @@ public static class SystemToolsAIBuilderExtensions
         "ReadFile", "WriteFile", "EditFile", "LineEditFile", "DeleteFile", "MoveFile",
         "Grep", "Glob", "ExecuteCommand", "ExploreDirectory",
         "ExecuteShellCommand", "FetchUrl", "DiffFile",
+        "WebSearch",
         "ApplyPatch", "ApplyPatchWithDelete",
     };
 
@@ -42,6 +43,8 @@ public static class SystemToolsAIBuilderExtensions
         var services = builder.Services;
         services.AddHttpClient();
         services.AddTransient<WebFetchTool>(sp => new WebFetchTool(sp.GetRequiredService<IHttpClientFactory>().CreateClient()));
+        // 搜索与抓取共用宿主的连接池（重定向/超时策略由宿主统一配）。
+        services.AddTransient<WebSearchTool>(sp => new WebSearchTool(sp.GetRequiredService<IHttpClientFactory>().CreateClient()));
         services.AddTransient<FileReadTool>();
         services.AddTransient<FileWriteTool>();
         services.AddTransient<FileEditTool>();
@@ -82,6 +85,9 @@ public static class SystemToolsAIBuilderExtensions
                 sp => CreateTool<DirectoryExplorerTool>(sp, "ExploreDirectory"));
             registry.Register("FetchUrl", "抓取网页内容", category,
                 sp => CreateTool<WebFetchTool>(sp, "FetchUrl"));
+            // 搜索：只读网络请求，两端同源可用（不 spawn 进程、不写本地）。
+            registry.Register("WebSearch", "搜索网页，返回候选站点（标题/URL/摘要）", category,
+                sp => CreateTool<WebSearchTool>(sp, "WebSearch"));
             registry.Register("DiffFile", "比较文件差异", category,
                 sp => CreateTool<FileDiffTool>(sp, "DiffFile"));
 

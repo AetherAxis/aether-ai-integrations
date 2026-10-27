@@ -26,7 +26,7 @@ public class SystemToolsTests
 
         var metas = registry.GetAllMetas();
         Assert.Equal(SystemToolsAIBuilderExtensions.ToolNames.Length, metas.Count);
-        Assert.Equal(15, metas.Count);
+        Assert.Equal(16, metas.Count);
         Assert.All(metas, meta => Assert.Equal("系统工具", meta.Category));
 
         Assert.Equal(ToolApprovalLevel.Safe, registry.LevelOf("ReadFile"));
@@ -46,7 +46,7 @@ public class SystemToolsTests
         using var provider = BuildProvider(includeCommandTools: false);
         var registry = provider.GetRequiredService<ToolRegistry>();
 
-        Assert.Equal(13, registry.GetAllMetas().Count);
+        Assert.Equal(14, registry.GetAllMetas().Count);
         Assert.False(registry.Contains("ExecuteCommand"));
         Assert.False(registry.Contains("ExecuteShellCommand"));
     }

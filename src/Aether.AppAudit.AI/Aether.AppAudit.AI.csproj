@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <!-- 跨仓 ProjectReference（兄弟仓并排于 AetherAxis 根下，同 Aether.Ledger.AI 惯例）：
+         ⑫ aether-ai 平台层（AetherAIBuilder / ToolRegistry / 审批与宿主能力）。
+         注意**不引任何 UI/应用仓**——本模块是独立可复用的领域集成。 -->
+    <ProjectReference Include="..\..\..\aether-ai\src\Aether.AI.Hosting\Aether.AI.Hosting.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 判定口径的迁移逻辑（PreviousDefaults / StripFrontMatter）要能被测试直接验。 -->
+    <InternalsVisibleTo Include="Aether.AppAudit.AI.Tests" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

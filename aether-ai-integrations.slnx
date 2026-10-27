@@ -1,7 +1,9 @@
 <Solution>
   <Project Path="src/Aether.Ledger.AI/Aether.Ledger.AI.csproj" />
   <Project Path="src/Aether.SystemTools.AI/Aether.SystemTools.AI.csproj" />
+  <Project Path="src/Aether.AppAudit.AI/Aether.AppAudit.AI.csproj" />
   <Project Path="tests/Aether.Ledger.AI.Tests/Aether.Ledger.AI.Tests.csproj" />
   <Project Path="tests/Aether.SystemTools.AI.Tests/Aether.SystemTools.AI.Tests.csproj" />
+  <Project Path="tests/Aether.AppAudit.AI.Tests/Aether.AppAudit.AI.Tests.csproj" />
   <Project Path="samples/Aether.SystemTools.AI.Sample/Aether.SystemTools.AI.Sample.csproj" />
 </Solution>

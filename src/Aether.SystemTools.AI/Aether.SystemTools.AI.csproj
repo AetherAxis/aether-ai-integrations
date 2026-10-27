@@ -7,6 +7,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- 解析类纯函数（WebSearchClient.ParseBing 等）留 internal：实现细节要能被测试喂真实页面形状验回归。 -->
+    <InternalsVisibleTo Include="Aether.SystemTools.AI.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- WebFetchTool 经 IHttpClientFactory 取客户端（连接池与重定向策略由宿主统一配置）。 -->
     <PackageReference Include="Microsoft.Extensions.Http" />
   </ItemGroup>
