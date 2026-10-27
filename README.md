@@ -9,9 +9,9 @@ aether-ai 是纯平台层（大脑接缝 + Harness + 工具池契约），**不�
 | 项目 | 说明 |
 |---|---|
 | `src/Aether.SystemTools.AI` | 宿主能力工具 15 个：文件（`ReadFile` `WriteFile` `EditFile` `LineEditFile` `DeleteFile` `MoveFile` `DiffFile` `ApplyPatch` `ApplyPatchWithDelete`）、搜索（`Grep` `Glob` `ExploreDirectory`）、网络（`FetchUrl`）、命令（`ExecuteCommand` `ExecuteShellCommand`）。`AddSystemTools(builder)` / `AddSystemTools(builder, includeCommandTools: false)`（可移植 13 个） |
-| `src/Aether.Ledger.AI` | 链上钱包工具（**AI agent 经济的操作面**，桌面已接线）：`LedgerGetInfo` / `LedgerGetBalance`（Safe）/ `LedgerTransfer`（**Dangerous**——链上转账不可逆）/ `LedgerDepositToExchange`（Confirm——充值到交易所 custody，桥自动补铸场内现金）。`AddLedgerTools(builder, walletSeedFilePath)` 经 aether-ai 的 `ConfigureToolRegistry` 注册；节点地址 env `AETHER_LEDGER_NODE_ADDR`、custody env `AETHER_LEDGER_CUSTODY_ADDRESS`；种子文件每次调用现读（换文件免重启，首个签名操作自动生成落盘） |
+| `src/Aether.Ledger.AI` | 链上钱包工具（**AI agent 经济的操作面**，⑮ 手机/桌面共享接线）：`LedgerGetInfo` / `LedgerGetBalance`（Safe）/ `LedgerTransfer`（**Dangerous**——链上转账不可逆）/ `LedgerDepositToExchange`（Confirm——充值到交易所 custody，桥自动补铸场内现金）。`AddLedgerTools(builder, walletSeedFilePath, nodeAddress, custodyAddress)` 经 aether-ai 的 `ConfigureToolRegistry` 注册；地址解析优先级 **参数（宿主配置）&gt; env（`AETHER_LEDGER_NODE_ADDR` / `AETHER_LEDGER_CUSTODY_ADDRESS`）&gt; 默认 `127.0.0.1:17805`**——手机端设不了 env，必须由宿主传进来；种子文件每次调用现读（换文件免重启，首个签名操作自动生成并 `0600` 落盘） |
 
-测试（`tests/Aether.Ledger.AI.Tests`，6 例）：5 例**真链回环**随迁自 monorepo（进程内 LedgerNode + 签名转账/充值路径 + 种子文件生命周期——跨仓直连 ① aether-ledger 引擎）+ 1 例 DI 接线钉子（`AddLedgerTools` → ToolRegistry 四工具与审批等级，镜像 monorepo CtpWiringTests 模式）。
+测试（`tests/Aether.Ledger.AI.Tests`，17 例）：5 例**真链回环**随迁自 monorepo（进程内 LedgerNode + 签名转账/充值路径 + 种子文件生命周期——跨仓直连 ① aether-ledger 引擎）+ 1 例 DI 接线钉子（`AddLedgerTools` → ToolRegistry 四工具与审批等级）+ **9 例节点/托管地址配置**（优先级 参数&gt;env&gt;默认、`host:port`/URL/路径/IPv6 写法宽容、种子文件 `0600`）+ 1 例充值未配 custody 的指引文案。
 
 测试（`tests/Aether.SystemTools.AI.Tests`，7 例）：DI 元数据与审批等级、命令工具开关、真实文件系统写/读/编辑/Grep/Glob/目录浏览/删除、`Grep`/`Glob` 空 `path` 拒绝回退 CWD、`ToolRegistry` 解析出的 `AIFunction` 按参数名绑定调用（MAF 调工具的已知陷阱）、**规则大脑经 Harness 调 `ReadFile` 的完整闭环**。
 
