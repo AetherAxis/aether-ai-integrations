@@ -52,7 +52,7 @@ aether-ai-integrations/src/Aether.AppAudit.AI
   → ../../aether-ai/src/Aether.AI.Hosting      （同上；本模块**不引任何 UI/应用仓**，可被任意宿主复用）
 ```
 
-CI 按拓扑 checkout 兄弟仓（aether-ai + aether-ledger，同 aether-desktop 模式）。
+CI 按拓扑 checkout 兄弟仓（aether-ai + aether-ledger，同 aether-ctp-desktop 模式）。
 
 ## 范围决策记录（2026-10-23，逐个迁——「只迁保留产品需要的适配器」）
 
