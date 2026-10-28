@@ -19,16 +19,11 @@ jobs:
         with:
           path: aether-ai-integrations
       # 跨仓依赖（本地 ProjectReference 拓扑——切 PackageReference 后可移除）：
-      # Ledger 适配器 → ⑫ aether-ai（传递：Harness/Core/Memory…）+ ① aether-ledger
-      # SystemTools 适配器 → ⑫ aether-ai 一个仓（工具池/审批/宿主过滤全在平台层）
+      # 适配器 → ⑫ aether-ai 一个仓（工具池/审批/宿主过滤全在平台层）
       - uses: actions/checkout@v4
         with:
           repository: AetherAxis/aether-ai
           path: aether-ai
-      - uses: actions/checkout@v4
-        with:
-          repository: AetherAxis/aether-ledger
-          path: aether-ledger
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
@@ -48,9 +43,8 @@ jobs:
         run: dotnet build aether-ai-integrations.slnx -c Release
         working-directory: aether-ai-integrations
 
-      # 2026-10-23 随迁测试：5 例真链回环（进程内节点 + 签名转账/充值路径 + 种子文件生命周期）
-      # + 1 例 DI 接线钉子（AddLedgerTools → ToolRegistry 四工具与审批等级）
-      # + 7 例系统工具（DI 元数据/真实文件系统行为/AIFunction 参数绑定/规则大脑调工具闭环）。
+      # 测试：系统工具 10 例（DI 元数据/真实文件系统行为/AIFunction 参数绑定/规则大脑调工具闭环/WebSearch 解析）
+      # + 应用审查 31 例（任务板状态机/写入纪律/工具链路/skill 落盘与迁移）。
       - name: Test
         run: dotnet test aether-ai-integrations.slnx -c Release --no-build
         working-directory: aether-ai-integrations

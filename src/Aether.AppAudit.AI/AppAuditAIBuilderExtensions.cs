@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Aether.AppAudit.AI;
 
 /// <summary>
-/// 「应用审查」集成模块的注册入口——**一个领域一个模块**（同 <c>Aether.Ledger.AI</c> 的惯例）。
+/// 「应用审查」集成模块的注册入口——**一个领域一个模块**（新领域 = ⑭ 新建一个 Aether.&lt;Domain&gt;.AI）。
 /// <para>这个模块自带：数据模型、落盘、任务板、判定口径 skill、agent 工具。宿主（任何 app/CLI/服务）
 /// 只要 <c>AddAppAuditTools(dataDir, skillsDir)</c> 就能让它的 agent 取任务、写结论；
 /// UI 想要「应用审查页」也只是把 <see cref="AppAuditStore"/> 当数据源来显示——**UI 跟工具互不知道对方存在**。</para>

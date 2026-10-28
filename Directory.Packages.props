@@ -1,7 +1,7 @@
 <Project>
 
   <!-- aether-ai-integrations 独立 CPM。版本基线 = monorepo Directory.Packages.props @ 8686503
-       （2026-10-23 迁入，不借迁移自动升级）。Ledger 适配器零包引用（MAF/NSec 经 ProjectReference 传递）；
+       （2026-10-23 迁入，不借迁移自动升级）。适配器自身零额外包引用（MAF 经 ProjectReference 传递）；
        SystemTools 适配器只多一个 Microsoft.Extensions.Http（WebFetchTool 走 IHttpClientFactory）。 -->
 
   <PropertyGroup>
