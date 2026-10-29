@@ -1,6 +1,6 @@
 # Aether.AI.Integrations
 
-AI 工具适配器仓——把能力以 `AIFunction` 工具形式接入 ⑫ aether-ai 平台：宿主能力（文件/搜索/HTTP/命令）+ 领域模块（应用审查）；其余业务域（链/交易/CTP/…）按需再加（AI 线本质可调任意工具，业务适配回归时按「一个领域一个模块」惯例新建）。**每个适配独立项目**（一个适配器一个 csproj，避免一个总包拉入全部依赖）；适配器只注册工具、**调用业务入口，不复制业务规则**；目录/凭据全部宿主侧接线（不进 LLM 上下文）。
+AI 工具适配器仓——把能力以 `AIFunction` 工具形式接入 ⑫ aether-ai 平台：宿主能力（文件/搜索/HTTP/命令）+ 领域模块（应用审查、浏览器）；其余业务域（链/交易/CTP/…）按需再加（AI 线本质可调任意工具，业务适配回归时按「一个领域一个模块」惯例新建）。**每个适配独立项目**（一个适配器一个 csproj，避免一个总包拉入全部依赖）；适配器只注册工具、**调用业务入口，不复制业务规则**；目录/凭据全部宿主侧接线（不进 LLM 上下文）。
 
 aether-ai 是纯平台层（大脑接缝 + Harness + 工具池契约），**不放任何具体工具实现**：工具是「业务/宿主 + AI」，归属本仓。
 
@@ -10,10 +10,13 @@ aether-ai 是纯平台层（大脑接缝 + Harness + 工具池契约），**不�
 |---|---|
 | `src/Aether.SystemTools.AI` | 宿主能力工具 16 个：文件（`ReadFile` `WriteFile` `EditFile` `LineEditFile` `DeleteFile` `MoveFile` `DiffFile` `ApplyPatch` `ApplyPatchWithDelete`）、搜索（`Grep` `Glob` `ExploreDirectory`）、网络（`FetchUrl`、**`WebSearch`**——Bing HTML 抓取，失败退 DuckDuckGo，纯 HTTP 无浏览器）、命令（`ExecuteCommand` `ExecuteShellCommand`）。`AddSystemTools(builder)` / `AddSystemTools(builder, includeCommandTools: false)`（可移植 14 个） |
 | `src/Aether.AppAudit.AI` | **应用审查任务板 + 工具**（`ListAuditTasks` / `SaveAppVerdict` / `ReadAppVerdict`，全 Safe）。模块自带数据模型、`app-audit.json` 落盘、发布/取任务/写结论的状态机，以及判定口径 skill（`app-audit/SKILL.md`，首次运行种进宿主 skills 目录，改口径只改 Markdown）。`AddAppAuditTools(builder, dataDirectory, skillsDirectory)`。**关键设计：模块里没有判定逻辑**——页面/宿主只发布任务，怎么判（搜几次、抓不抓正文、要不要多轮）由 agent 自己决定，工具只负责把结论写回；所以任何宿主复用这个模块就有一套自己的应用审查，不依赖任何 UI 仓 |
+| `src/Aether.Browser.AI` | **浏览器工具 + Playwright 会话服务**（7 工具，2026-10-29 迁入）：观测/凭证四件 `browser_open` / `browser_get_cookies` / `browser_get_requests` / `browser_close` + **操作三件套** `browser_read`（读页面：URL/标题/正文 innerText，~2 万字截断）/ `browser_click`（点元素，Playwright selector：`text=` / `role=` / `css=` / `xpath=`）/ `browser_type`（填输入框，fill 语义，可带回车）。Playwright headed Chromium **独立 OS 窗口**（用户手动登录、全程可见），服务记录该会话的 HTTP 请求流（DevTools Network 式，1000 条上限 / body 32k 截断 / 150ms 去抖）；工作流 = `browser_open` 登录页 → 用户登录 → agent `browser_read` 看页 → `browser_click`/`browser_type` 操作 → `browser_get_cookies` 拿 curl 直接用的 CookieHeader 走 API。持久 profile 读宿主设的 `AetherAIOptions.BrowserProfileDir`（登录一次复用）；channel 未指定自动探测本机 Chrome/Edge（免 playwright install）。**双启动模式**（`BrowserLaunchMode`，宿主策略 `DefaultLaunchMode`——OpenSession 可显式传，agent 工具不暴露）：`Launch`（默认，Playwright 启动，`navigator.webdriver=true` 明牌）/ `Attach`（本机浏览器普通启动 + 调试端口 CDP 连入，`webdriver=false`——2026-10-29 探针实证；行为层仍可被识别，不承诺隐身）。**桌面专属模块**（⑭ 首例）：全部工具 `DesktopOnly`；`get_cookies` / `click` / `type` = Confirm（动凭证、动已登录会话须过审批）。`AddBrowserTools(builder)`。**面板 UI 不在本仓**（⑮ 桌面 head 的 `Browser/`，经 `AddBrowserPanel(dataDir)` 组合——含 browser.json 模式开关）——工具与面板共用同一 service 单例、互不感知 |
 
 测试（`tests/Aether.AppAudit.AI.Tests`，31 例）：任务板状态机（导入=待发布、发布默认跳过已判过、勾复核才重发、取任务→写回→出池、单条重发只影响那一条、旧版中途阶段算待处理、按发布顺序 + `limit` 截断）、写入纪律（重复导入不覆盖结论、落盘读回、坏 JSON 当空表、重判保留历史且当前取最近一次）、工具链路（取任务带清单网址与上次结论、未导入的名字也能写、非法 verdict 拒绝、同义词/中文、无任务明说）、skill（落盘去 frontmatter、不改用户正文、旧默认值升级、文件缺失回退内置）。
 
 测试（`tests/Aether.SystemTools.AI.Tests`，10 例）：DI 元数据与审批等级、命令工具开关、真实文件系统写/读/编辑/Grep/Glob/目录浏览/删除、`Grep`/`Glob` 空 `path` 拒绝回退 CWD、`ToolRegistry` 解析出的 `AIFunction` 按参数名绑定调用（MAF 调工具的已知陷阱）、**规则大脑经 Harness 调 `ReadFile` 的完整闭环**、命令工具真跑子进程、WebSearch 结果解析 ×3（Bing 标题摘要配对/上限与站内跳转丢弃、DuckDuckGo 跳转链解开）。
+
+测试（`tests/Aether.Browser.AI.Tests`，13 例，fake `IBrowserService` 不起 Playwright——真链路见 ⑮ 桌面 head 的 `--browser-smoke`）：`browser_open` 有活跃会话则导航/无则新建、`get_cookies` 无活跃会话口径与结果透传、`get_requests` 按 URL 过滤 / 只看错误 / 限量与叠加、`browser_close` 无会话口径与关闭、**操作三件套**（无活跃会话口径 / click 委托与落点 URL 透传 / type 透传 selector·text·pressEnter / read 返回页面内容）。⑮ 侧另有接线断言（桌面注册 7 个 / 手机连注册都不发生 / 误挂载被宿主能力兜底——见 ⑮ `tests/Aether.AI.App.Tests`）。
 
 示例宿主（`samples/Aether.SystemTools.AI.Sample`）：规则大脑实跑 `ReadFile` / `ExploreDirectory` 并打印结果，`dotnet run` 即可；断言在 `tests/Aether.SystemTools.AI.Tests` 中，CI 两者都跑。
 
@@ -25,6 +28,9 @@ aether-ai 是纯平台层（大脑接缝 + Harness + 工具池契约），**不�
 | `MoveFile` | Confirm | 两端 |
 | `DeleteFile` `ApplyPatchWithDelete` | Dangerous | 两端 |
 | `ExecuteCommand` `ExecuteShellCommand` | Dangerous | 仅桌面（spawn 子进程） |
+| `browser_open` `browser_get_requests` `browser_close` `browser_read` | Safe | 仅桌面（headed 浏览器） |
+| `browser_get_cookies` | Confirm | 仅桌面（cookie = 登录凭证，会进 agent 上下文） |
+| `browser_click` `browser_type` | Confirm | 仅桌面（在已登录会话上执行操作——审批卡可勾「总是允许」减摩擦） |
 
 `Grep` / `Glob` 要求显式 `path`（空路径直接报错，不回退进程 CWD——桌面 app 从 `.app` 启动时 CWD 是 `/`），并拒绝把系统根目录当搜索根。
 
@@ -42,6 +48,10 @@ aether-ai-integrations/src/Aether.SystemTools.AI
 
 aether-ai-integrations/src/Aether.AppAudit.AI
   → ../../aether-ai/src/Aether.AI.Hosting      （同上；本模块**不引任何 UI/应用仓**，可被任意宿主复用）
+
+aether-ai-integrations/src/Aether.Browser.AI
+  → ../../aether-ai/src/Aether.AI.Hosting      （同上；+ Microsoft.Playwright / CommunityToolkit.Mvvm 两个包。桌面专属——
+                                               移动宿主不挂载即零成本，误挂载由 HostCapability 兜底过滤）
 ```
 
 CI 按拓扑 checkout 兄弟仓（aether-ai）。
@@ -52,12 +62,13 @@ CI 按拓扑 checkout 兄弟仓（aether-ai）。
 - **Ctp / Trading / Quotes**：⏸ 暂缓——桌面组合根**未注册**这三个工具集；唯一消费者是 **Stockapp**（A 股 app，`AddQuotesTools().AddCtpTools().AddTradingTools()`——属 MIGRATION.md §6「范围未定」桶，未经范围决定不机械建仓）。另：Ctp 适配器依赖 `Acme.Ctp.Application` 门面（ICtpTradingService）——该门面未迁（ctp-net-client 暴露的是 ICtpSession 直面），迁它需按 Ctp.Net 契约重写工具层；Quotes 依赖 `Acme.Quotes.Application` / `Acme.Securities.Application`（均未迁）。待 P3 桌面 AI 功能明确需求后逐个评估。
 - **Agents**（ai/Agents）：⏸ 暂缓——通用执行机制与业务适配需分开归属（MIGRATION.md §6），且依赖 Notes.Domain（独立仓已删除，需时从 monorepo `business/Notes` 重取）——随桌面批次定。
 - **SystemTools**：✅ 2026-10-23 迁入（用户决定：工具本质是「业务/宿主 + AI」，不留在平台层，也不再留 Desktop 内部）。迁入的这份**不依赖窗口/终端/浏览器生命周期**——只做文件系统、`Grep`/`Glob`、`IHttpClientFactory` 抓取与子进程执行，因此可无头运行；命令类工具标 `DesktopOnly`，手机端由 `ToolRegistry` 自动过滤。
-- **ApkParser**：⏸ 留 Desktop 内部（依赖窗口/浏览器生命周期——MIGRATION.md §6 明确先留 Desktop 内部项目）。
+- **Browser**：✅ 2026-10-29 迁入（自 monorepo `apps/Desktop/Acme.Desktop.Shared/Shell/Browser`——BrowserService/BrowserTool/接口原样 port）——用户定调「**提供给 AI 调用的工具就进 ⑭**」。据此切法：工具 + Playwright 服务（UI-free）落 ⑭，面板 View/VM 留 ⑮ 桌面 head（`AddBrowserPanel` 组合两边）。**⑭ 首个桌面专属模块**：工具全 `DesktopOnly`——这不违背「适配器可被任意宿主复用」，复用方 = 任意**桌面**宿主（CLI/别的桌面 app 引 `AddBrowserTools` 即有自己的浏览器工具，不需要 ⑮ 的面板）。这条同时把「依赖浏览器生命周期 ⇒ 留桌面侧」的旧口径细化为：**工具面不依赖 UI 的进 ⑭（桌面专属模块），宿主窗口耦合的面板留 UI 仓**。
+- **ApkParser**：⏸ 留 Desktop 内部（依赖窗口/浏览器生命周期——MIGRATION.md §6 明确先留 Desktop 内部项目；与 Browser 不同类：其解析流程本身耦合宿主窗口，切不出 UI-free 的工具面）。
 
 ## 构建与测试
 
 ```bash
-dotnet test aether-ai-integrations.slnx    # 41 例：系统工具 ×10 + 应用审查 ×31
+dotnet test aether-ai-integrations.slnx    # 54 例：系统工具 ×10 + 应用审查 ×31 + 浏览器 ×13
 dotnet run --project samples/Aether.SystemTools.AI.Sample   # 示例：规则大脑调真实系统工具
 ```
 

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <!-- 跨仓 ProjectReference（兄弟仓并排于 AetherAxis 根下，三级上溯）：
+         ⑫ aether-ai 平台层（AetherAIBuilder / ToolRegistry / 审批与宿主能力）。
+         注意**不引任何 UI/应用仓**——本模块是独立可复用的工具集成；面板 UI 在 ⑮（AddBrowserPanel）。 -->
+    <ProjectReference Include="..\..\..\aether-ai\src\Aether.AI.Hosting\Aether.AI.Hosting.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Playwright：headed Chromium 独立窗口（用户手动登录）+ 请求/cookie 观测。浏览器二进制不随包：
+         channel 自动探测本机 Chrome/Edge（BrowserChannel.DetectDefault），或 playwright install chromium。 -->
+    <PackageReference Include="Microsoft.Playwright" />
+    <!-- 会话/请求模型的 INPC（面板实时刷新用；纯托管，无原生依赖） -->
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

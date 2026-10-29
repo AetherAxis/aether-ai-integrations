@@ -12,6 +12,11 @@
     <!-- SystemTools 适配器（WebFetchTool 的 IHttpClientFactory）与测试的 DI 组合 -->
     <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.13" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.13" />
+    <!-- Browser 适配器：headed Chromium（用户手动登录）+ 请求/cookie 观测。
+         版本与 monorepo / ⑮ 原方案一致；浏览器二进制靠 channel 探测本机 Chrome/Edge 或 playwright install。 -->
+    <PackageVersion Include="Microsoft.Playwright" Version="1.61.0" />
+    <!-- Browser 适配器：会话/请求模型的 INPC（面板实时刷新；纯托管） -->
+    <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.2" />
 
     <!-- 测试 -->
     <PackageVersion Include="coverlet.collector" Version="10.1.0" />
