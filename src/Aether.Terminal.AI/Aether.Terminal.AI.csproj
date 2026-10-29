@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <!-- 跨仓 ProjectReference（兄弟仓并排于 AetherAxis 根下，三级上溯）：
+         ⑫ aether-ai 平台层（AetherAIBuilder / ToolRegistry / 审批与宿主能力）。
+         注意**不引任何 UI/应用仓**——本模块只含工具面（接口 + run_in_terminal）；
+         ITerminalService 的 impl 是 UI 耦合的（持 RoyalTerminal 控件/PTY），归宿主 UI 仓（⑮ 桌面 head Terminal/）。 -->
+    <ProjectReference Include="..\..\..\aether-ai\src\Aether.AI.Hosting\Aether.AI.Hosting.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 会话元数据的 INPC（面板标签实时刷新用；纯托管，无原生依赖） -->
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>
