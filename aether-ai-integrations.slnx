@@ -1,10 +1,8 @@
 <Solution>
   <Project Path="src/Aether.SystemTools.AI/Aether.SystemTools.AI.csproj" />
-  <Project Path="src/Aether.AppAudit.AI/Aether.AppAudit.AI.csproj" />
   <Project Path="src/Aether.Browser.AI/Aether.Browser.AI.csproj" />
   <Project Path="src/Aether.Terminal.AI/Aether.Terminal.AI.csproj" />
   <Project Path="tests/Aether.SystemTools.AI.Tests/Aether.SystemTools.AI.Tests.csproj" />
-  <Project Path="tests/Aether.AppAudit.AI.Tests/Aether.AppAudit.AI.Tests.csproj" />
   <Project Path="tests/Aether.Browser.AI.Tests/Aether.Browser.AI.Tests.csproj" />
   <Project Path="tests/Aether.Terminal.AI.Tests/Aether.Terminal.AI.Tests.csproj" />
   <Project Path="samples/Aether.SystemTools.AI.Sample/Aether.SystemTools.AI.Sample.csproj" />
