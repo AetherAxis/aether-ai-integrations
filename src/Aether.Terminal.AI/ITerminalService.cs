@@ -37,8 +37,10 @@ public sealed class TerminalRunResult
 /// <remarks>
 /// 与 monorepo 版的差异（2026-10-29 port）：去掉了底部面板显隐三成员（IsPanelVisible / SetPanelVisible /
 /// PanelVisibilityChanged）——⑮ 形态是 nav rail tab（切 tab 即显隐），没有折叠 toggle 的概念。
-/// 视图生命周期依赖：⑩ 工作台「加载即建全部 panel 视图、切 tab 只切 IsVisible（不销毁）」⇒ 终端视图跨 nav
-/// 切换常驻，PTY 进程不被打断。
+/// 视图生命周期（2026-10-29 重构）：**控件/PTY 归服务所有**（BrowserService 同款）——视图是纯投影
+/// （附着=挂载控件、分离=摘下），**视图可随意销毁**不杀会话；CreateSession/RunAsync 无需任何视图存在
+/// （agent 的 run_in_terminal 不要求用户开过终端 tab）。⑩ 工作台的「建全部 panel、切 tab 只切 IsVisible」
+/// 因此只是性能取舍，不再被任何组件依赖。
 /// </remarks>
 public interface ITerminalService
 {
